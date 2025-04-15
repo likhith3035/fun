@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Fun Games Home</title>
+  <style>
+    /* Global Styles */
+    body {
+      font-family: "Comic Sans MS", cursive, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #ffebcd, #ffe4e1);
+      color: #333;
+      text-align: center;
+      position: relative;
+    }
+    .container {
+      padding: 50px 20px;
+    }
+    h1 {
+      font-size: 2.5em;
+      margin-bottom: 20px;
+    }
+    button, .button {
+      cursor: pointer;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .hidden {
+      display: none;
+    }
+    /* Global Date/Time Display */
+    .datetime {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      font-size: 14px;
+      color: rgba(0, 0, 0, 0.7);
+      z-index: 200;
+      font-family: monospace;
+    }
+    /* Global Watermark - Appears on Every Page */
+    .watermark {
+      position: fixed;
+      pointer-events: none;
+      user-select: none;
+      font-size: 20px;
+      font-weight: bold;
+      z-index: 200;
+      opacity: 0.8;
+      background: linear-gradient(to right, #ff7e5f, #feb47b);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+    .watermark.top-left {
+      top: 10px;
+      left: 10px;
+    }
+    .watermark.bottom-right {
+      bottom: 10px;
+      right: 10px;
+    }
+    /* Useless Button Section */
+    #useless-response {
+      margin-top: 30px;
+      font-size: 24px;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Navigation Back Button */
+    .back-btn {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 16px;
+      background-color: #4caf50;
+      border: none;
+      border-radius: 5px;
+      color: #fff;
+      transition: background-color 0.2s;
+    }
+    .back-btn:hover {
+      background-color: #43a047;
+    }
+    /* Responsive Styles */
+    @media only screen and (max-width: 600px) {
+      h1 {
+        font-size: 2em;
+      }
+      .container {
+        padding: 20px;
+      }
+      .back-btn {
+        font-size: 14px;
+        padding: 8px 16px;
+      }
+    }
+    /* --- 3D Button Styles for Clicker Game (from Uiverse.io snippet) --- */
+    .button {
+      -webkit-appearance: none;
+      appearance: none;
+      position: relative;
+      border-width: 0;
+      padding: 0 8px 12px;
+      min-width: 10em;
+      box-sizing: border-box;
+      background: transparent;
+      font: inherit;
+    }
+    .button-top {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 0;
+      padding: 8px 16px;
+      transform: translateY(0);
+      text-align: center;
+      color: #fff;
+      text-shadow: 0 -1px rgba(0, 0, 0, .25);
+      transition: transform 0.2s;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    .button:active .button-top {
+      transform: translateY(6px);
+    }
+    .button-top::after {
+      content: '';
+      position: absolute;
+      z-index: -1;
+      border-radius: 4px;
+      width: 100%;
+      height: 100%;
+      box-sizing: content-box;
+      background-image: radial-gradient(#cd3f64, #9d3656);
+      box-shadow: inset 0 0 0px 1px rgba(255, 255, 255, .2), 0 1px 2px 1px rgba(255, 255, 255, .2);
+      transition: border-radius 0.2s, padding 0.2s, width 0.2s, transform 0.2s;
+    }
+    .button:active .button-top::after {
+      border-radius: 6px;
+      padding: 0 2px;
+    }
+    .button-bottom {
+      position: absolute;
+      z-index: -1;
+      bottom: 4px;
+      left: 4px;
+      border-radius: 8px / 16px 16px 8px 8px;
+      padding-top: 6px;
+      width: calc(100% - 8px);
+      height: calc(100% - 10px);
+      box-sizing: content-box;
+      background-color: #803;
+      background-image: radial-gradient(4px 8px at 4px calc(100% - 8px), rgba(255, 255, 255, .25), transparent),
+                        radial-gradient(4px 8px at calc(100% - 4px) calc(100% - 8px), rgba(255, 255, 255, .25), transparent),
+                        radial-gradient(16px at -4px 0, white, transparent),
+                        radial-gradient(16px at calc(100% + 4px) 0, white, transparent);
+      box-shadow: 0px 2px 3px 0px rgba(0, 0, 0, 0.5), inset 0 -1px 3px 3px rgba(0, 0, 0, .4);
+      transition: border-radius 0.2s, padding-top 0.2s;
+    }
+    .button:active .button-bottom {
+      border-radius: 10px 10px 8px 8px / 8px;
+      padding-top: 0;
+    }
+    .button-base {
+      position: absolute;
+      z-index: -2;
+      top: 4px;
+      left: 0;
+      border-radius: 12px;
+      width: 100%;
+      height: calc(100% - 4px);
+      background-color: rgba(0, 0, 0, .15);
+      box-shadow: 0 1px 1px 0 rgba(255, 255, 255, .75), inset 0 2px 2px rgba(0, 0, 0, .25);
+    }
+    /* Clicker Game Score Styling */
+    #clickerScore, #highScore {
+      font-size: 24px;
+      margin-top: 20px;
+    }
+
+    /* New Time Challenge Styles */
+    .time-challenge {
+      margin: 20px 0;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+      gap: 10px;
+    }
+    .time-btn {
+      padding: 12px;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.2s, opacity 0.2s;
+      background: linear-gradient(45deg, #ff6b6b, #ff8e8e);
+      color: white;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    .time-btn:hover {
+      transform: translateY(-2px);
+      opacity: 0.9;
+    }
+    .time-btn[data-time="30"] { background: linear-gradient(45deg, #4ecdc4, #45b7af); }
+    .time-btn[data-time="60"] { background: linear-gradient(45deg, #ff9a9e, #fad0c4); }
+    .time-btn[data-time="120"] { background: linear-gradient(45deg, #a8edea, #fed6e3); }
+    
+    .custom-time {
+      margin: 15px 0;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+    }
+    #customSeconds {
+      padding: 8px;
+      border: 2px solid #ddd;
+      border-radius: 5px;
+      width: 80px;
+      text-align: center;
+    }
+    
+    #timer {
+      font-size: 28px;
+      font-weight: bold;
+      color: #2c3e50;
+      margin: 15px 0;
+    }
+    .progress-bar {
+      width: 80%;
+      height: 12px;
+      background: #eee;
+      border-radius: 10px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .progress {
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, #ff6b6b, #ff8e8e);
+      transition: width 1s linear;
+    }
+    
+    @keyframes scorePop {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+      100% { transform: scale(1); }
+    }
+    .score-update {
+      animation: scorePop 0.2s ease-out;
+    }
+  </style>
+</head>
+<body>
+  <!-- Global Date/Time Display -->
+  <div id="datetime" class="datetime"></div>
+  <!-- Global Watermarks -->
+  <div class="watermark top-left">Likhith</div>
+  <div class="watermark bottom-right">Likhith</div>
+
+  <!-- Home Page -->
+  <div id="home-page" class="container">
+    <h1>Welcome to Fun Games</h1>
+    <p>Select a game to play:</p>
+    <button onclick="showPage('useless-page')">Useless Button</button>
+    <button onclick="showPage('clicker-page')">Clicker Game</button>
+  </div>
+
+  <!-- Useless Button Page -->
+  <div id="useless-page" class="container hidden">
+    <h1>Don't Press the Button!</h1>
+    <button onclick="makeUselessFun()">Press Me</button>
+    <div id="useless-response"></div>
+    <button class="back-btn" onclick="showPage('home-page')">← Back Home</button>
+  </div>
+
+  <!-- Clicker Game Page -->
+  <div id="clicker-page" class="container hidden">
+    <h1>Clicker Game</h1>
+    <div class="time-challenge">
+      <button class="time-btn" data-time="30" onclick="startChallenge(30)">30 Sec</button>
+      <button class="time-btn" data-time="60" onclick="startChallenge(60)">1 Min</button>
+      <button class="time-btn" data-time="120" onclick="startChallenge(120)">2 Min</button>
+    </div>
+    
+    <div class="custom-time">
+      <input type="number" id="customSeconds" placeholder="Sec" min="10" max="300">
+      <button class="time-btn" onclick="startChallengeCustom()">Custom</button>
+    </div>
+
+    <div id="timer" class="hidden">00:30</div>
+    <div class="progress-bar hidden">
+      <div class="progress"></div>
+    </div>
+
+    <button id="toggleClicker" onclick="toggleClicker()">Start Game</button>
+    <div id="clickerButtonContainer" class="hidden" style="margin-top: 20px;">
+      <button id="clickerButton" class="button" onclick="incrementClicker()">
+        <div class="button-top">CLICK ME</div>
+        <div class="button-bottom"></div>
+        <div class="button-base"></div>
+      </button>
+    </div>
+    <div id="clickerScore">Score: 0</div>
+    <div id="highScore">High Score: 0</div>
+    <button class="back-btn" onclick="showPage('home-page')">← Back Home</button>
+  </div>
+
+  <script>
+    /* Global Date/Time Update */
+    function updateDateTime() {
+      const now = new Date();
+      const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+      const day = days[now.getDay()];
+      const dateStr = now.toLocaleDateString();
+      const timeStr = now.toLocaleTimeString();
+      document.getElementById("datetime").textContent = `${day}, ${dateStr} | ${timeStr}`;
+    }
+    updateDateTime();
+    setInterval(updateDateTime, 1000);
+
+    /* Navigation Function */
+    function showPage(pageId) {
+      const pages = ['home-page', 'useless-page', 'clicker-page'];
+      pages.forEach(id => {
+        document.getElementById(id).classList.add('hidden');
+      });
+      document.getElementById(pageId).classList.remove('hidden');
+    }
+
+    /* Useless Button Logic */
+    const uselessMessages = [
+      "I warned you, don't press that button.",
+      "Button is tired of foolish presses.",
+      "Stop! That button is truly offended.",
+      "Your finger is too silly, dude.",
+      "Fool, the button laughs at you.",
+      "Seriously, don't try to break it.",
+      "Even the button calls you silly.",
+      "Oops, button got fed up today."
+    ];
+    let uselessCount = 0;
+    function makeUselessFun() {
+      const response = document.getElementById("useless-response");
+      response.textContent = uselessMessages[uselessCount % uselessMessages.length];
+      uselessCount++;
+      response.style.animation = 'none';
+      void response.offsetWidth;
+      response.style.animation = 'fadeIn 0.5s forwards';
+    }
+    document.addEventListener("keydown", (event) => {
+      if ((event.code === "Space" || event.code === "Enter") && !document.getElementById("useless-page").classList.contains("hidden")) {
+        event.preventDefault();
+        makeUselessFun();
+      }
+    });
+
+    /* Clicker Game Logic */
+    let clickerActive = false;
+    let clickerScore = 0;
+    let highScore = localStorage.getItem('clickerHighScore') || 0;
+    let currentChallenge = null;
+    let timeLeft = 0;
+
+    function toggleClicker() {
+      clickerActive = !clickerActive;
+      const toggleBtn = document.getElementById("toggleClicker");
+      const clickerButtonContainer = document.getElementById("clickerButtonContainer");
+      if (clickerActive) {
+        toggleBtn.textContent = "Stop Game";
+        clickerButtonContainer.classList.remove("hidden");
+      } else {
+        toggleBtn.textContent = "Start Game";
+        clickerButtonContainer.classList.add("hidden");
+        clickerScore = 0;
+        updateClickerDisplay();
+      }
+    }
+
+    function startChallenge(seconds) {
+      if (currentChallenge) return;
+      
+      clickerActive = true;
+      clickerScore = 0;
+      timeLeft = seconds;
+      updateClickerDisplay();
+      
+      document.getElementById('timer').classList.remove('hidden');
+      document.querySelector('.progress-bar').classList.remove('hidden');
+      document.getElementById("clickerButtonContainer").classList.remove("hidden");
+      
+      const timerElement = document.getElementById('timer');
+      const progressElement = document.querySelector('.progress');
+      
+      currentChallenge = setInterval(() => {
+        timeLeft--;
+        const minutes = Math.floor(timeLeft / 60);
+        const seconds = timeLeft % 60;
+        timerElement.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+        progressElement.style.width = `${(timeLeft / seconds) * 100}%`;
+        
+        if (timeLeft <= 0) {
+          clearInterval(currentChallenge);
+          currentChallenge = null;
+          clickerActive = false;
+          timerElement.textContent = "Time's up!";
+          progressElement.style.width = '0%';
+          
+          if (clickerScore > highScore) {
+            highScore = clickerScore;
+            localStorage.setItem('clickerHighScore', highScore);
+          }
+          updateClickerDisplay();
+        }
+      }, 1000);
+    }
+
+    function startChallengeCustom() {
+      const customSeconds = parseInt(document.getElementById('customSeconds').value);
+      if (customSeconds >= 10 && customSeconds <= 300) {
+        startChallenge(customSeconds);
+      }
+    }
+
+    function incrementClicker() {
+      if (clickerActive) {
+        clickerScore++;
+        if (clickerScore > highScore && !currentChallenge) {
+          highScore = clickerScore;
+        }
+        updateClickerDisplay();
+      }
+    }
+
+    function updateClickerDisplay() {
+      document.getElementById("clickerScore").textContent = "Score: " + clickerScore;
+      document.getElementById("highScore").textContent = "High Score: " + highScore;
+      document.getElementById("clickerScore").classList.add('score-update');
+      setTimeout(() => {
+        document.getElementById("clickerScore").classList.remove('score-update');
+      }, 200);
+    }
+  </script>
+</body>
+</html>
